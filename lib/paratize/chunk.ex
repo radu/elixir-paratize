@@ -31,7 +31,7 @@ defmodule Paratize.Chunk do
       |> Enum.map(&task_async(&1))
       |> Enum.map(&Task.await(&1, task_options.timeout))
     end)
-    |> List.flatten
+    |> List.foldr([], fn a,b -> a ++ b end)
   end
 
   defp task_async(fun) do
