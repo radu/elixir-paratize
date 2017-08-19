@@ -31,7 +31,7 @@ defmodule Paratize.Chunk do
       |> Enum.map(&task_async(&1))
       |> Enum.map(&Task.await(&1, task_options.timeout))
     end)
-    |> Enum.reduce(fn a,b -> b ++ a end)
+    |> Enum.reduce(fn result, acc -> acc ++ result end)
   end
 
   defp task_async(fun) do
