@@ -6,8 +6,6 @@ defmodule Paratize.BaseTest.Common do
 
       def test_impl, do: unquote(test_impl)
 
-
-
       test "parallel_each/3 is able to execute the task in parallel and returns :ok." do
         args = [1,2,3,4,5]
         {:ok, store_pid} = Agent.start_link(fn-> [] end)
