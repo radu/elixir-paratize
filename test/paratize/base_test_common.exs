@@ -48,32 +48,21 @@ defmodule Paratize.BaseTest.Common do
         assert div(time, 1000) in 300..500
       end
 
-      test "parallel_map does not over flatten arrays 1." do
-        fn1 = fn a -> [a] end
-        args1 = [1,2,3,4,5]
-        result1 = args1 |> test_impl().parallel_map(fn1, %Paratize.TaskOptions{size: 2})
+      test "parallel_map/3 maintains structure of input/output" do
+        args = [1,[2],3,[4,5]]
 
-        assert MapSet.equal?(
-          args1 |> Enum.map(fn1) |> Enum.into(MapSet.new),
-          result1 |> Enum.into(MapSet.new))
+        worker_fun = fn 
+          (arg) when is_list(arg) -> arg ++ arg
+          (arg) when is_integer(arg) -> arg * 2
+        end
 
-        fn2 = fn a -> a ++ 1 end
-        args2 = result1
-        result2 = args2 |> test_impl().parallel_map(fn2, %Paratize.TaskOptions{size: 2})
+        {time, result} = :timer.tc fn ->
+          args |> test_impl().parallel_map(worker_fun)
+        end
 
-        assert MapSet.equal?(
-          args2 |> Enum.map(fn2) |> Enum.into(MapSet.new),
-          result2 |> Enum.into(MapSet.new))
-
-        fn3 = fn a -> a ++ 1 end
-        args3 = [[1,2,3,4,5]]
-        result3 = args3 |> test_impl().parallel_map(fn3, %Paratize.TaskOptions{size: 2})
-
-        assert MapSet.equal?(
-          args3 |> Enum.map(fn3) |> Enum.into(MapSet.new),
-          result3 |> Enum.into(MapSet.new))
-
+        assert result == [2,[2,2],6,[4,5,4,5]]
       end
+
     end
   end
 
